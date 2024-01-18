@@ -1,6 +1,10 @@
 import Vue from 'vue'
 import VueRouter from 'vue-router'
+import store from '../store'
 import HomeView from '../views/HomeView.vue'
+import DashboardView from '../views/DashboardView.vue'
+import LoginView from '../views/LoginView.vue'
+
 
 Vue.use(VueRouter)
 
@@ -34,7 +38,7 @@ const routes = [
 ]
 
 const router = new VueRouter({
-  mode: history,
+  mode: 'history',
   base: process.env.BASE_URL,
   routes
 })

@@ -6,6 +6,10 @@ import './registerServiceWorker'
 
 Vue.config.productionTip = false
 
+import MyHeader from '@/components/MyHeader.vue'
+
+Vue.component('MyHeader',MyHeader)
+
 new Vue({
   router,
   store,
