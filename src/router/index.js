@@ -27,14 +27,6 @@ const routes = [
       requireLogin: true
     }
   },
-  {
-    path: '/about',
-    name: 'about',
-    // route level code-splitting
-    // this generates a separate chunk (about.[hash].js) for this route
-    // which is lazy-loaded when the route is visited.
-    component: () => import(/* webpackChunkName: "about" */ '../views/AboutView.vue')
-  }
 ]
 
 const router = new VueRouter({
@@ -44,11 +36,17 @@ const router = new VueRouter({
 })
 
 router.beforeEach((to, from, next) => {
-  if (to.matched.some(record => record.meta.requireLogin) && !store.state.isAuthenticated) {
-    next('/login')
-  } else {
-    next()
-  }
+  setTimeout(() => {
+    if (to.matched.some(record => record.meta.requireLogin) && !store.state.isAuthenticated) {
+      next('/login')
+    } else {
+      if (to.path === '/' && store.state.isAuthenticated) {
+        next('/dashboard');
+      } else {
+        next()
+      }
+    }
+  }, "0.1")
 })
 
 export default router

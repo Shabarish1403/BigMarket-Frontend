@@ -1,9 +1,18 @@
 <template>
   <div id="app">
-    <MyHeader></MyHeader>
+    <MyHeader style="padding-top: 4rem;"></MyHeader>
     <router-view/>
   </div>
 </template>
+
+<script>
+export default {
+  name: 'App',
+  beforeCreate() {
+    this.$store.commit('initializeStore')
+  }
+}
+</script>
 
 <style>
 #app {
