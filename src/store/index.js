@@ -8,11 +8,61 @@ export default new Vuex.Store({
   state: {
     baseUrl: 'http://127.0.0.1:5000',
     isAuthenticated: false,
-    token: ''
+    token: '',
+    categoryData: [
+      {
+        id: 1,
+        name: 'Category 1',
+        active: true,
+        comments: 'Test comments for Category 1',
+        products: [
+          {
+            id: 101,
+            name: 'Product 1',
+            expiry: '2024-01-20', 
+            price: 10,
+            unit: 'pcs',
+            availability: 50,
+            category_id: 1,
+            purchases: [],
+            carts: [],
+          },
+          {
+            id: 102,
+            name: 'Product 2',
+            expiry: '2024-01-20', 
+            price: 10,
+            unit: 'pcs',
+            availability: 50,
+            category_id: 1,
+            purchases: [],
+            carts: [],
+          },
+          {
+            id: 103,
+            name: 'Product 3',
+            expiry: '2024-01-20', 
+            price: 10,
+            unit: 'pcs',
+            availability: 50,
+            category_id: 1,
+            purchases: [],
+            carts: [],
+          }
+        ]
+      }
+    ],
+      
   },
   getters: {
+    getCategoryData: state => {
+      return state.categoryData;
+    },
   },
   mutations: {
+    setCategoryData(state, data) {
+      state.categoryData = data;
+    },
     initializeStore(state) {
       let token = localStorage.getItem('token')
       if (token) {
