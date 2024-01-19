@@ -30,17 +30,14 @@ export default {
 </script>
 
 <style scoped>
-.card-body {
+/* .card-body {
   display: flex;
   flex-direction: column;
   overflow-x: auto;
-}
+} */
 
-.product-container {
-  width: 100%;
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: space-between;
+/* .card {
+  flex: 0 0 auto;
   margin-top: 10px;
-}
+} */
 </style>

@@ -27,6 +27,17 @@
   </script>
   
   <style scoped>
+.product-container {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+}
+
+.product-card {
+  /* box-sizing: border-box; */
+  width: calc(50% - 10px); 
+  
+}
 
 .card-body {
   height: 100%;

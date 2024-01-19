@@ -38,17 +38,6 @@ export default new Vuex.Store({
             purchases: [],
             carts: [],
           },
-          {
-            id: 103,
-            name: 'Product 3',
-            expiry: '2024-01-20', 
-            price: 10,
-            unit: 'pcs',
-            availability: 50,
-            category_id: 1,
-            purchases: [],
-            carts: [],
-          }
         ]
       }
     ],
