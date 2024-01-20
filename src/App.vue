@@ -10,6 +10,7 @@ export default {
   name: 'App',
   beforeCreate() {
     this.$store.commit('initializeStore')
+    this.$store.dispatch('fetchData')
   }
 }
 </script>

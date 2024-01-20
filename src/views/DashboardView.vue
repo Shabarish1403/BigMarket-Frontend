@@ -21,6 +21,9 @@ export default {
             return this.$store.state.categoryData || [];
         },
     },
+    mounted() {
+        // console.log(current_user)
+    },  
     components: {
         CategoryComp,
     },

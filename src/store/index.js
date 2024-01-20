@@ -9,6 +9,8 @@ export default new Vuex.Store({
     baseUrl: 'http://127.0.0.1:5000',
     isAuthenticated: false,
     token: '',
+    categories: [],
+    user: {},
     categoryData: [
       {
         id: 1,
@@ -47,6 +49,9 @@ export default new Vuex.Store({
     getCategoryData: state => {
       return state.categoryData;
     },
+    getCategories(state) {
+      return state.categories
+    },
   },
   mutations: {
     setCategoryData(state, data) {
@@ -70,9 +75,26 @@ export default new Vuex.Store({
     removeToken(state) {
       state.token = ''
       state.isAuthenticated = false
-    }
+    },
+    setCategories(state, data) {
+      state.categories = data
+    },
+    setUser(state,data) {
+      state.user = data
+    },
   },
   actions: {
+    fetchData({state,commit}) {
+      fetch(`${state.baseUrl}/api/categories`, {
+        method: 'GET',
+      })
+      .then((response) => {
+        return response.json()
+      })
+      .then((data) => {
+        commit('setCategories', data)
+      })
+    },
     loginUser({ state, commit }, payload) {
         fetch(`${state.baseUrl}/login?include_auth_token`, {
           method: 'POST',
@@ -91,6 +113,7 @@ export default new Vuex.Store({
           const token = data.response.user.authentication_token
           commit('setToken', token)
           localStorage.setItem('token', token)
+          this.dispatch('fetchUser')
           router.push('/dashboard')
         })
         .catch(error => console.error(error))
@@ -107,6 +130,18 @@ export default new Vuex.Store({
       localStorage.clear()
       commit('removeToken')
       router.push('/')
+    },
+    async fetchUser({state,commit}) {
+      const response = await fetch(`${state.baseUrl}/api/getuser`, {
+        method: 'GET',
+        headers: {
+          'Authentication-Token':state.token
+        }
+      })
+      const data = await response.json()
+      console.log(data)
+      commit('setUser',data)
+      // return data
     }
   },
   modules: {
