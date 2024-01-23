@@ -11,47 +11,9 @@ export default new Vuex.Store({
     token: '',
     categories: [],
     user: {},
-    categoryData: [
-      {
-        id: 1,
-        name: 'Category 1',
-        active: true,
-        comments: 'Test comments for Category 1',
-        products: [
-          {
-            id: 101,
-            name: 'Product 1',
-            expiry: '2024-01-20', 
-            price: 10,
-            unit: 'pcs',
-            availability: 50,
-            category_id: 1,
-            purchases: [],
-            carts: [],
-          },
-          {
-            id: 102,
-            name: 'Product 2',
-            expiry: '2024-01-20', 
-            price: 10,
-            unit: 'pcs',
-            availability: 50,
-            category_id: 1,
-            purchases: [],
-            carts: [],
-          },
-        ]
-      }
-    ],
-      
+    carts: [],
   },
   getters: {
-    getCategoryData: state => {
-      return state.categoryData;
-    },
-    getCategories(state) {
-      return state.categories
-    },
   },
   mutations: {
     setCategoryData(state, data) {
@@ -79,44 +41,42 @@ export default new Vuex.Store({
     setCategories(state, data) {
       state.categories = data
     },
-    setUser(state,data) {
+    setUser(state, data) {
       state.user = data
     },
+    setCart(state) {
+      state.carts = state.user.carts
+    }
   },
   actions: {
-    fetchData({state,commit}) {
+    fetchData({ state, commit }) {
       fetch(`${state.baseUrl}/api/categories`, {
         method: 'GET',
       })
-      .then((response) => {
-        return response.json()
-      })
-      .then((data) => {
-        commit('setCategories', data)
-      })
-    },
-    loginUser({ state, commit }, payload) {
-        fetch(`${state.baseUrl}/login?include_auth_token`, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify(payload)
-        })
         .then((response) => {
-          if (!response.ok) {
-            alert('Incorrect email or password')
-          }
           return response.json()
         })
         .then((data) => {
-          const token = data.response.user.authentication_token
-          commit('setToken', token)
-          localStorage.setItem('token', token)
-          this.dispatch('fetchUser')
-          router.push('/dashboard')
+          commit('setCategories', data)
         })
-        .catch(error => console.error(error))
+    },
+    async loginUser({ state, commit }, payload) {
+      const response = await fetch(`${state.baseUrl}/login?include_auth_token`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(payload)
+      })
+      if (!response.ok) {
+        alert('Incorrect email or password')
+      }
+      const data = await response.json()
+      const token = data.response.user.authentication_token
+      commit('setToken', token)
+      localStorage.setItem('token', token)
+      this.dispatch('fetchUser')
+      router.push('/')
     },
     logoutUser({ state, commit }) {
       fetch(`${state.baseUrl}/logout`, {
@@ -129,19 +89,34 @@ export default new Vuex.Store({
         .catch(error => console.error(error))
       localStorage.clear()
       commit('removeToken')
-      router.push('/')
+      router.go()
     },
-    async fetchUser({state,commit}) {
-      const response = await fetch(`${state.baseUrl}/api/getuser`, {
+    // async fetchUser({ state, commit }) {
+    //   const response = await fetch(`${state.baseUrl}/api/getuser`, {
+    //     method: 'GET',
+    //     headers: {
+    //       'Authentication-Token': state.token
+    //     }
+    //   })
+    //   const data = await response.json()
+    //   // console.log(data)
+    //   commit('setUser', data)
+    //   // return data
+    // },
+    fetchUser({state,commit}) {
+      fetch(`${state.baseUrl}/api/getuser`, {
         method: 'GET',
         headers: {
-          'Authentication-Token':state.token
+          'Authentication-Token': state.token
         }
       })
-      const data = await response.json()
-      console.log(data)
-      commit('setUser',data)
-      // return data
+      .then(response => {
+        return response.json()
+      })
+      .then(data => {
+        commit('setUser',data)
+        commit('setCart',data)
+      })
     }
   },
   modules: {

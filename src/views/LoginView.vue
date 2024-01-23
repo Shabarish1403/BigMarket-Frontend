@@ -56,10 +56,8 @@ export default {
         }
     },
     mounted() {
-        console.log(this.$store.state.flashMessage)
     },
     computed: {
-        // ...mapState(['flashMessage'])
     },
     methods: {
         loginUser(event) {
