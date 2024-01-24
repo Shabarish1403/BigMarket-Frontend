@@ -10,16 +10,23 @@
     </div>
     <div v-if="categories.length == 0">
       <p>No Categories or Products are available</p>
-      <button class="btn btn-primary">Add</button>
+      <button v-if="user.roles && user.roles[0].name === 'manager'" class="btn btn-primary">Add</button>
     </div>
     <div>
       <div v-for="category in categories" :key="category.id">
         <div class="card mb-2">
           <div class="card-body">
-            <h2 class="card-title">{{ category.name }}</h2>
+            <div class="d-flex">
+              <h2 class="card-title me-2">{{ category.name }}</h2>
+              <div v-if="user.roles && user.roles[0].name === 'manager'">
+                <button class="btn btn-primary me-1"><i class="bi bi-plus-circle"></i></button>
+                <button class="btn btn-warning me-1"><i class="bi bi-pencil-square"></i></button>
+                <button class="btn btn-danger"><i class="bi bi-trash3"></i></button>
+              </div>
+            </div>
             <div v-if="category.products.length == 0">
               <p>No Products are availbale</p>
-              <button class="btn btn-primary">Create</button>
+              <button v-if="user.roles && user.roles[0].name === 'manager'" class="btn btn-primary">Create</button>
             </div>
             <div class="d-flex flex-row flex-nowrap overflow-auto">
               <div v-for="product in category.products" :key="product.id">
@@ -32,20 +39,29 @@
                     </div>
                     <p class="card-text">Expriy: {{ product.expiry }}</p>
                     <p class="card-text align-self-center">Availability: {{ product.availability }}</p>
-                    <div align="center">
-                      <div class="input-group" style="width:6rem">
-                        <div class="input-group-prepend">
-                          <span class="input-group-text hover" @click="decrementValue(product)">-</span>
-                        </div>
-                        <input type="text" class="form-control form-control-sm text-center" v-model="product.quantity" />
-                        <div class="input-group-append">
-                          <span class="input-group-text hover" @click="incrementValue(product)">+</span>
+
+                    <div v-if="(!isAuthenticated) || (user.roles && user.roles[0].name === 'user')">
+                      <div align="center">
+                        <div class="input-group" style="width:6rem">
+                          <div class="input-group-prepend">
+                            <span class="input-group-text hover" @click="decrementValue(product)">-</span>
+                          </div>
+                          <input type="text" class="form-control form-control-sm text-center"
+                            v-model="product.quantity" />
+                          <div class="input-group-append">
+                            <span class="input-group-text hover" @click="incrementValue(product)">+</span>
+                          </div>
                         </div>
                       </div>
+                      <div class="mt-3">
+                        <button class="btn btn-warning me-2" @click="addToCart(product)">Add to cart</button>
+                        <button class="btn btn-danger" @click="buyNow(product)">Buy Now</button>
+                      </div>
                     </div>
-                    <div class="mt-3">
-                      <button class="btn btn-warning me-2" @click="addToCart(product)">Add to cart</button>
-                      <button class="btn btn-danger">Buy Now</button>
+
+                    <div v-if="user.roles && user.roles[0].name === 'manager'">
+                      <button class="btn btn-warning me-1"><i class="bi bi-pencil-square"></i></button>
+                      <button class="btn btn-danger"><i class="bi bi-trash3"></i></button>
                     </div>
                   </div>
                 </div>
@@ -59,22 +75,15 @@
 </template>
 
 <script>
-
+import { mapState } from 'vuex'
 export default {
   name: 'HomeView',
   data() {
     return {
-      flashMessage: '',
-      quantity: 1
     }
   },
   computed: {
-    categories() {
-      return this.$store.state.categories
-    },
-    user() {
-      return this.$store.state.user
-    }
+    ...mapState(['categories', 'flashMessage', 'user', 'isAuthenticated']),
   },
   methods: {
     async addToCart(product) {
@@ -91,13 +100,23 @@ export default {
         })
         const data = await response.json()
         if (data.message) {
-          this.flashMessage = data.message
+          this.$store.state.flashMessage = data.message
         }
         this.$store.dispatch('fetchUser')
       }
     },
+    buyNow(product) {
+      if (!this.$store.state.isAuthenticated) {
+        this.$router.push('/login')
+      } else {
+        if (confirm(`Are you sure you want to buy ${product.name} of quantity ${product.quantity}`)) {
+          const payload = { 'product_id': product.id, 'quantity': product.quantity }
+          this.$store.dispatch('buyNow', payload)
+        }
+      }
+    },
     clearFlashMessage() {
-      this.flashMessage = ''
+      this.$store.state.flashMessage = ''
     },
     incrementValue(product) {
       product.quantity++;

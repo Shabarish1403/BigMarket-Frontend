@@ -12,13 +12,12 @@ export default new Vuex.Store({
     categories: [],
     user: {},
     carts: [],
+    purchases: [],
+    flashMessage: ''
   },
   getters: {
   },
   mutations: {
-    setCategoryData(state, data) {
-      state.categoryData = data;
-    },
     initializeStore(state) {
       let token = localStorage.getItem('token')
       if (token) {
@@ -46,6 +45,9 @@ export default new Vuex.Store({
     },
     setCart(state) {
       state.carts = state.user.carts
+    },
+    setPurchases(state) {
+      state.purchases = state.user.purchases
     }
   },
   actions: {
@@ -60,23 +62,32 @@ export default new Vuex.Store({
           commit('setCategories', data)
         })
     },
-    async loginUser({ state, commit }, payload) {
-      const response = await fetch(`${state.baseUrl}/login?include_auth_token`, {
+    loginUser({ state, commit }, payload) {
+      fetch(`${state.baseUrl}/login?include_auth_token`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
         },
         body: JSON.stringify(payload)
       })
-      if (!response.ok) {
-        alert('Incorrect email or password')
-      }
-      const data = await response.json()
-      const token = data.response.user.authentication_token
-      commit('setToken', token)
-      localStorage.setItem('token', token)
-      this.dispatch('fetchUser')
-      router.push('/')
+      .then(response => {
+        // if (!response.ok) {
+        //   alert('Incorrect email or password')
+        // }
+        return response.json()
+      })
+      .then(data => {
+        if (data.meta.code == 400) {
+          state.flashMessage = data.response.errors[0]
+        } else {
+          const token = data.response.user.authentication_token
+          commit('setToken', token)
+          localStorage.setItem('token', token)
+          this.dispatch('fetchUser')
+          router.push('/')
+        }
+      })
+      .catch(error => console.error(error))
     },
     logoutUser({ state, commit }) {
       fetch(`${state.baseUrl}/logout`, {
@@ -91,33 +102,61 @@ export default new Vuex.Store({
       commit('removeToken')
       router.go()
     },
-    // async fetchUser({ state, commit }) {
-    //   const response = await fetch(`${state.baseUrl}/api/getuser`, {
-    //     method: 'GET',
-    //     headers: {
-    //       'Authentication-Token': state.token
-    //     }
-    //   })
-    //   const data = await response.json()
-    //   // console.log(data)
-    //   commit('setUser', data)
-    //   // return data
-    // },
-    fetchUser({state,commit}) {
+    fetchUser({ state, commit }) {
       fetch(`${state.baseUrl}/api/getuser`, {
         method: 'GET',
         headers: {
           'Authentication-Token': state.token
         }
       })
+        .then(response => {
+          return response.json()
+        })
+        .then(data => {
+          commit('setUser', data)
+          commit('setCart')
+          commit('setPurchases')
+        })
+    },
+    deleteCart({state}, cart_id) {
+      fetch(`${state.baseUrl}/api/cart/${cart_id}`, {
+          method: 'DELETE',
+          headers: {
+              'Authentication-Token': state.token
+          }
+      })
       .then(response => {
         return response.json()
       })
       .then(data => {
-        commit('setUser',data)
-        commit('setCart',data)
+        if (data.message) {
+          state.flashMessage = data.message
+          this.dispatch('fetchUser')
+        }
       })
-    }
+    },
+    buyNow({ state }, payload) {
+      console.log(payload)
+      fetch(`${state.baseUrl}/api/addpurchase`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authentication-Token': state.token
+        },
+        body: JSON.stringify(payload)
+      })
+        .then(response => {
+          return response.json()
+        })
+        .then(data => {
+          console.log(data)
+          if (data.message) {
+            state.flashMessage = data.message
+          }
+          this.dispatch('fetchData')
+          this.dispatch('fetchUser')
+        })
+    },
   },
   modules: {
   }

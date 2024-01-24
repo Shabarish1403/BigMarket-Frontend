@@ -1,9 +1,11 @@
 <template>
     <div>
         <div class="container-fluid" style="padding-top:8rem" align="center">
-            <div v-if="flashMessage != ''" class="alert alert-success alert-dismissible fade show col-md-3" role="alert">
+            <div v-if="flashMessage != ''" :key="flashMessage"
+                class="alert alert-warning alert-dismissible fade show col-md-3" role="alert">
                 {{ flashMessage }}
-                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"
+                    @click="clearFlashMessage"></button>
             </div>
             <div v-if="show">
                 <h2>Welcome</h2>
@@ -44,7 +46,7 @@ export default {
     data() {
         return {
             show: true,
-            flashMessage: '',
+            // flashMessage: '',
             user: {
                 email: '',
                 username: '',
@@ -58,8 +60,14 @@ export default {
     mounted() {
     },
     computed: {
+        flashMessage() {
+            return this.$store.state.flashMessage
+        }
     },
     methods: {
+        clearFlashMessage() {
+            this.$store.state.flashMessage = ''
+        },
         loginUser(event) {
             event.preventDefault();
             localStorage.clear()
@@ -83,9 +91,9 @@ export default {
                 })
                 .then((data) => {
                     if (data.message) {
-                        this.flashMessage = data.message
+                        this.$store.state.flashMessage = data.message
                     } else {
-                        this.flashMessage = 'Sign up Successful. Please Login'
+                        this.$store.state.flashMessage = 'Sign up Successful. Please Login'
                     }
                     this.toggleLogin()
                 })

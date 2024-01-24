@@ -1,11 +1,11 @@
 <template>
     <div style="margin:1rem">
-        <div v-if="this.carts.length == 0">
+        <div v-if="carts.length == 0">
             <p>No products available in the cart. <a href="/">Continue Shopping</a></p>
         </div>
         <div v-else class="container-fluid d-flex justify-content-between" align="left">
             <div class="w-75">
-                <div v-for="cart in this.carts" :key="cart.id" class="card mb-2" align="left">
+                <div v-for="cart in carts" :key="cart.id" class="card mb-2" align="left">
                     <div class="d-flex justify-content-between" style="margin:2rem">
                         <div>
                             <h4 class="">{{ getCategory(cart.product_id).name }} - {{ getProduct(cart.product_id).name }}
@@ -22,7 +22,8 @@
                                         <span class="input-group-text hover" @click="incrementValue(cart)">+</span>
                                     </div>
                                 </div>
-                                <button class="btn btn-link link-danger" @click="deleteCart(cart.id)"><i class="bi bi-trash3"></i></button>
+                                <button class="btn btn-link link-danger" @click="deleteCart(cart.id)"><i
+                                        class="bi bi-trash3"></i></button>
                             </div>
                         </div>
                         <div class="align-self-center d-flex">
@@ -35,8 +36,8 @@
             <div id="totalPrice" class="card w-25 ms-3 position-fixed end-0 me-2">
                 <div class="" style="margin:1rem" align="center">
                     <h4>Total Payable Amount</h4>
-                    <h6>Subtotal:<b><i class="bi bi-currency-rupee"></i>{{ this.getTotalPrice }}</b></h6>
-                    <button class="btn btn-warning w-100">Proceed to Buy</button>
+                    <h6>Subtotal:<b><i class="bi bi-currency-rupee"></i>{{ getTotalPrice }}</b></h6>
+                    <button class="btn btn-warning w-100" @click="buyAll()">Proceed to Buy</button>
                 </div>
             </div>
         </div>
@@ -91,19 +92,19 @@ export default {
                 cart.quantity--;
             }
         },
-        async deleteCart(cart_id) {
-            const response = await fetch(`${this.$store.state.baseUrl}/api/cart/${cart_id}`, {
-                method: 'DELETE',
-                headers: {
-                    'Authentication-Token': this.$store.state.token
-                }
-            })
-            const data = await response.json()
-            this.flashMessage = data.message
-            this.$store.dispatch('fetchUser')
+        deleteCart(cart_id) {
+            this.$store.dispatch('deleteCart',cart_id)
+        },
+        buyAll() {
+            if (confirm(`Are you sure you want to buy all products`)) {
+                this.carts.forEach(cart => {
+                    const payload = {'product_id':cart.product_id,'quantity':cart.quantity}
+                    console.log(cart)
+                    this.$store.dispatch('buyNow', payload)
+                    this.deleteCart(cart.id)
+                }) 
+            }
         }
-
-
     }
 }
 </script>

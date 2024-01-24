@@ -2,9 +2,10 @@ import Vue from 'vue'
 import VueRouter from 'vue-router'
 import store from '../store'
 import HomeView from '../views/HomeView.vue'
-import DashboardView from '../views/DashboardView.vue'
+// import DashboardView from '../views/DashboardView.vue'
 import LoginView from '../views/LoginView.vue'
 import CartView from '../views/CartView.vue'
+import PurchaseView from '../views/PurchaseView.vue'
 
 
 Vue.use(VueRouter)
@@ -23,16 +24,27 @@ const routes = [
   {
     path: '/cart',
     name: 'CartView',
-    component: CartView
-  },
-  {
-    path: '/dashboard',
-    name: 'DashboardView',
-    component: DashboardView,
+    component: CartView,
     meta: {
       requireLogin: true
     }
   },
+  // {
+  //   path: '/dashboard',
+  //   name: 'DashboardView',
+  //   component: DashboardView,
+  //   meta: {
+  //     requireLogin: true
+  //   }
+  // },
+  {
+    path: '/purchases',
+    name: 'PurchaseView',
+    component: PurchaseView,
+    meta: {
+      requireLogin: true
+    }
+  }
 ]
 
 const router = new VueRouter({
