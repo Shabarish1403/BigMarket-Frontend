@@ -7,8 +7,10 @@ import './registerServiceWorker'
 Vue.config.productionTip = false
 
 import MyHeader from '@/components/MyHeader.vue'
+import AddProduct from '@/components/AddProduct.vue'
 
 Vue.component('MyHeader',MyHeader)
+Vue.component('AddProduct',AddProduct)
 
 new Vue({
   router,

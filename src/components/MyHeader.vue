@@ -14,6 +14,9 @@
                         </li>
                     </ul>
                     <div v-if="$store.state.isAuthenticated" class="d-flex justify-content-end">
+                        <div v-if="user.roles && user.roles[0].name === 'manager'">
+                            <button class="btn btn-info me-3">Add Category</button>
+                        </div>
                         <form class="d-flex me-3 w-50" role="search">
                             <div class="input-group">
                                 <input class="form-control" type="search" placeholder="Search" aria-label="Search"

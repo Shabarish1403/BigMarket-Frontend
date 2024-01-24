@@ -1,35 +1,55 @@
 <template>
   <div style="margin:1rem">
-    <div class="container-fluid" align="center">
-      <div v-if="flashMessage != ''" :key="flashMessage" class="alert alert-warning alert-dismissible fade show col-md-5"
-        role="alert">
+
+    <!-- Flash Message -->
+    <div class="container" align="center">
+      <div v-if="flashMessage != ''" :key="flashMessage" class="alert alert-warning alert-dismissible fade show col-md-5 position-fixed"
+        role="alert" style="z-index:1030">
         {{ flashMessage }}
         <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"
           @click="clearFlashMessage"></button>
       </div>
     </div>
+
+    <!-- No data available -->
     <div v-if="categories.length == 0">
       <p>No Categories or Products are available</p>
       <button v-if="user.roles && user.roles[0].name === 'manager'" class="btn btn-primary">Add</button>
     </div>
+
+    <!-- Categories and Products -->
     <div>
+      <!-- Categories -->
       <div v-for="category in categories" :key="category.id">
+
+        <!-- Category details -->
         <div class="card mb-2">
           <div class="card-body">
-            <div class="d-flex">
-              <h2 class="card-title me-2">{{ category.name }}</h2>
-              <div v-if="user.roles && user.roles[0].name === 'manager'">
-                <button class="btn btn-primary me-1"><i class="bi bi-plus-circle"></i></button>
-                <button class="btn btn-warning me-1"><i class="bi bi-pencil-square"></i></button>
-                <button class="btn btn-danger"><i class="bi bi-trash3"></i></button>
+            <div class="d-flex justify-content-between">
+              <div class="d-flex">
+                <h2 class="card-title me-2">{{ category.name }}</h2>
+                <div v-if="user.roles && user.roles[0].name === 'manager'">
+                  <button class="btn btn-warning me-1"><i class="bi bi-pencil-square"></i></button>
+                  <button class="btn btn-danger"><i class="bi bi-trash3"></i></button>
+                </div>
+              </div>
+              <div>
+                <button class="btn btn-primary" data-bs-toggle="modal" :data-bs-target="`#addProduct${category.id}`">Add
+                  Product <i class="bi bi-plus-circle"></i></button>
+                <AddProduct :category_id="category.id" class=""></AddProduct>
               </div>
             </div>
+
+            <!-- No Products -->
             <div v-if="category.products.length == 0">
               <p>No Products are availbale</p>
-              <button v-if="user.roles && user.roles[0].name === 'manager'" class="btn btn-primary">Create</button>
             </div>
+
+            <!-- Products -->
             <div class="d-flex flex-row flex-nowrap overflow-auto">
               <div v-for="product in category.products" :key="product.id">
+
+                <!-- Product details -->
                 <div class="card me-1">
                   <div class="card-body">
                     <div class="d-flex justify-content-center">
@@ -40,6 +60,7 @@
                     <p class="card-text">Expriy: {{ product.expiry }}</p>
                     <p class="card-text align-self-center">Availability: {{ product.availability }}</p>
 
+                    <!-- User operations -->
                     <div v-if="(!isAuthenticated) || (user.roles && user.roles[0].name === 'user')">
                       <div align="center">
                         <div class="input-group" style="width:6rem">
@@ -59,9 +80,11 @@
                       </div>
                     </div>
 
+                    <!-- Manager operations >> Product CRUD -->
                     <div v-if="user.roles && user.roles[0].name === 'manager'">
                       <button class="btn btn-warning me-1"><i class="bi bi-pencil-square"></i></button>
-                      <button class="btn btn-danger"><i class="bi bi-trash3"></i></button>
+                      <button class="btn btn-danger" @click="deleteProduct(product.id)"><i
+                          class="bi bi-trash3"></i></button>
                     </div>
                   </div>
                 </div>
@@ -124,6 +147,25 @@ export default {
     decrementValue(product) {
       if (product.quantity > 1) {
         product.quantity--;
+      }
+    },
+    deleteProduct(product_id) {
+      if (confirm('Are you sure you want to delete?')) {
+        fetch(`${this.$store.state.baseUrl}/api/product/${product_id}`, {
+          method: 'DELETE',
+          headers: {
+            'Authentication-Token': this.$store.state.token
+          }
+        })
+          .then(response => {
+            return response.json()
+          })
+          .then(data => {
+            if (data.message) {
+              this.$store.state.flashMessage = data.message
+            }
+            this.$store.dispatch('fetchData')
+          })
       }
     }
   }
