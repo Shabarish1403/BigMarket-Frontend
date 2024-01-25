@@ -10,11 +10,11 @@
                     </div>
                     <div class="modal-body">
                         <div class="form-floating mb-2">
-                            <input v-model="product.name" type="text" class="form-control" placeholder="name">
+                            <input v-model="product.name" type="text" class="form-control" placeholder="Name">
                             <label for="floatingInput">Name</label>
                         </div>
                         <div class="form-floating mb-2">
-                            <input v-model="product.expiry" type="date" class="form-control" placeholder="expiry">
+                            <input v-model="product.expiry" type="date" class="form-control" placeholder="Expiry">
                             <label for="floatingPassword">Expiry</label>
                         </div>
                         <div class="form-floating mb-2">
@@ -22,19 +22,18 @@
                             <label for="floatingPassword">Price</label>
                         </div>
                         <div class="form-floating mb-2">
-                            <input v-model="product.unit" type="text" class="form-control" placeholder="unit">
+                            <input v-model="product.unit" type="text" class="form-control" placeholder="Unit">
                             <label for="floatingPassword">Unit</label>
                         </div>
                         <div class="form-floating">
                             <input v-model="product.availability" type="integer" class="form-control"
-                                placeholder="availability">
-                            <label for="floatingPassword">availability</label>
+                                placeholder="Availability">
+                            <label for="floatingPassword">Availability</label>
                         </div>
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-primary" data-bs-dismiss="modal"
                             @click="addProduct">Add</button>
-                        {{ this.product.category_id }}
                     </div>
                 </div>
             </div>
@@ -57,12 +56,8 @@ export default {
             }
         }
     },
-    created() {
-        // this.product.category_id = this.category_id;
-    },
     methods: {
         addProduct() {
-            console.log(this.product)
             fetch(`${this.$store.state.baseUrl}/api/addproduct`, {
                 method: 'POST',
                 headers: {
@@ -88,7 +83,7 @@ export default {
                         category_id: this.category_id
                     };
                 })
-        }
+        },
     }
 };
 </script>

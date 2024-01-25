@@ -2,22 +2,35 @@
     <div>
         <nav class="navbar navbar-expand-lg text-bg-dark fixed-top" data-bs-theme="dark">
             <div class="container-fluid">
+
+                <!-- Navbar Brand -->
                 <a class="navbar-brand" href="/">Big Market</a>
+
+                <!-- Navbar Toggler -->
                 <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarTogglerDemo02"
                     aria-controls="navbarTogglerDemo02" aria-expanded="false" aria-label="Toggle navigation">
                     <span class="navbar-toggler-icon"></span>
                 </button>
+
+                <!-- Collapsable data for Toggler -->
                 <div class="collapse navbar-collapse" id="navbarTogglerDemo02">
                     <ul class="navbar-nav me-auto mb-2 mb-lg-0">
                         <li class="nav-item">
                             {{ user.username }}
                         </li>
                     </ul>
+
+                    <!-- After login elements -->
                     <div v-if="$store.state.isAuthenticated" class="d-flex justify-content-end">
-                        <div v-if="user.roles && user.roles[0].name === 'manager'">
-                            <button class="btn btn-info me-3">Add Category</button>
+
+                        <!-- Add Category -->
+                        <div class="me-2" v-if="user.roles && ['admin','manager'].includes(user.roles[0].name)">
+                            <button class="btn btn-info" data-bs-toggle="modal" data-bs-target="#addCategory">Add Category</button>
+                            <AddCategory></AddCategory>
                         </div>
-                        <form class="d-flex me-3 w-50" role="search">
+
+                        <!-- Search -->
+                        <form class="d-flex me-2 w-50" role="search">
                             <div class="input-group">
                                 <input class="form-control" type="search" placeholder="Search" aria-label="Search"
                                     aria-describedby="button-addon2">
@@ -25,7 +38,9 @@
                                         class="bi bi-search"></i></button>
                             </div>
                         </form>
-                        <div v-if="user.roles && user.roles[0].name == 'user'" class="me-3">
+
+                        <!-- Cart -->
+                        <div v-if="user.roles && user.roles[0].name == 'user'" class="me-2">
                             <a href="/cart" class="position-relative">
                                 <svg xmlns="http://www.w3.org/2000/svg" width="30" height="30" fill="currentColor"
                                     class="bi bi-cart4 text-light" viewBox="0 0 16 16">
@@ -39,8 +54,15 @@
                                 </span>
                             </a>
                         </div>
-                        <div class="dropdown">
-                            <a class="dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+
+                        <!-- Profile -->
+                        <div>
+                            <a v-if="user.roles && user.roles[0].name === 'user'" class="btn" href="/purchases">Orders</a>
+                            <button class="btn btn-danger" @click="logoutUser">Log Out</button>
+                        </div>
+                        <!-- <div class="dropdown">
+                            <a class="dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown"
+                                aria-expanded="false">
                                 <svg xmlns="http://www.w3.org/2000/svg" width="30" height="30" fill="currentColor"
                                     class="bi bi-person-circle text-light" viewBox="0 0 16 16">
                                     <path d="M11 6a3 3 0 1 1-6 0 3 3 0 0 1 6 0" />
@@ -53,8 +75,10 @@
                                 <li><a class="dropdown-item" href="#">Settings</a></li>
                                 <li><button class="dropdown-item" @click="logoutUser">Logout</button></li>
                             </ul>
-                        </div>
+                        </div> -->
                     </div>
+
+                    <!-- Before login elements -->
                     <div v-else>
                         <a class="btn btn-info" href="/login" role="button">Log In</a>
                     </div>
@@ -65,7 +89,7 @@
 </template>
 
 <script>
-import { mapState,mapActions } from 'vuex';
+import { mapState, mapActions } from 'vuex';
 
 export default {
     name: 'MyHeader',
@@ -74,10 +98,10 @@ export default {
         }
     },
     computed: {
-        ...mapState(['user','carts'])
+        ...mapState(['user', 'carts'])
     },
     methods: {
-        ...mapActions(['logoutUser']), 
+        ...mapActions(['logoutUser']),
     }
 }
 </script>

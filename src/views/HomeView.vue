@@ -1,10 +1,15 @@
 <template>
   <div style="margin:1rem">
 
+    <!-- Approvals -->
+    <div class="mb-2" v-if="user.roles && user.roles[0].name === 'admin'" align="right">
+      <a class="btn btn-dark" href="/admin">Approvals</a>
+    </div>
+
     <!-- Flash Message -->
     <div class="container" align="center">
-      <div v-if="flashMessage != ''" :key="flashMessage" class="alert alert-warning alert-dismissible fade show col-md-5 position-fixed"
-        role="alert" style="z-index:1030">
+      <div v-if="flashMessage != ''" :key="flashMessage" class="alert alert-warning alert-dismissible fade show col-md-5"
+        role="alert">
         {{ flashMessage }}
         <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"
           @click="clearFlashMessage"></button>
@@ -24,19 +29,24 @@
 
         <!-- Category details -->
         <div class="card mb-2">
-          <div class="card-body">
+          <div class="card-body text-center">
             <div class="d-flex justify-content-between">
               <div class="d-flex">
                 <h2 class="card-title me-2">{{ category.name }}</h2>
-                <div v-if="user.roles && user.roles[0].name === 'manager'">
-                  <button class="btn btn-warning me-1"><i class="bi bi-pencil-square"></i></button>
-                  <button class="btn btn-danger"><i class="bi bi-trash3"></i></button>
+                <div v-if="user.roles && ['manager', 'admin'].includes(user.roles[0].name)">
+                  <button class="btn btn-warning me-1" data-bs-toggle="modal"
+                    :data-bs-target="`#editCategory${category.id}`"><i class="bi bi-pencil-square"></i></button>
+                  <button class="btn btn-danger" @click="deleteCategory(category.id)"><i
+                      class="bi bi-trash3"></i></button>
+                  <EditCategory :categoryData="category"></EditCategory>
                 </div>
               </div>
-              <div>
+
+              <!-- Add Product -->
+              <div v-if="user.roles && user.roles[0].name === 'manager'">
                 <button class="btn btn-primary" data-bs-toggle="modal" :data-bs-target="`#addProduct${category.id}`">Add
                   Product <i class="bi bi-plus-circle"></i></button>
-                <AddProduct :category_id="category.id" class=""></AddProduct>
+                <AddProduct :category_id="category.id"></AddProduct>
               </div>
             </div>
 
@@ -80,11 +90,14 @@
                       </div>
                     </div>
 
-                    <!-- Manager operations >> Product CRUD -->
+                    <!-- Edit and Delete Product -->
                     <div v-if="user.roles && user.roles[0].name === 'manager'">
-                      <button class="btn btn-warning me-1"><i class="bi bi-pencil-square"></i></button>
-                      <button class="btn btn-danger" @click="deleteProduct(product.id)"><i
-                          class="bi bi-trash3"></i></button>
+                      <button class="btn btn-warning me-1" data-bs-toggle="modal"
+                        :data-bs-target="`#editProduct${product.id}`"><i class="bi bi-pencil-square"></i></button>
+                      <button class="btn btn-danger" @click="deleteProduct(product.id)">
+                        <i class="bi bi-trash3"></i>
+                      </button>
+                      <EditProduct :productData="product"></EditProduct>
                     </div>
                   </div>
                 </div>
@@ -104,6 +117,8 @@ export default {
   data() {
     return {
     }
+  },
+  mounted() {
   },
   computed: {
     ...mapState(['categories', 'flashMessage', 'user', 'isAuthenticated']),
@@ -167,7 +182,10 @@ export default {
             this.$store.dispatch('fetchData')
           })
       }
-    }
+    },
+    deleteCategory(category_id) {
+      this.$store.getters.deleteCategory(category_id)
+    },
   }
 }
 </script>

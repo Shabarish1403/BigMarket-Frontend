@@ -11,6 +11,7 @@ export default new Vuex.Store({
     token: '',
     categories: [],
     user: {},
+    admin: {},
     carts: [],
     purchases: [],
     flashMessage: ''
@@ -43,6 +44,9 @@ export default new Vuex.Store({
     setUser(state, data) {
       state.user = data
     },
+    setAdmin(state,data) {
+      state.admin = data
+    },
     setCart(state) {
       state.carts = state.user.carts
     },
@@ -71,9 +75,6 @@ export default new Vuex.Store({
         body: JSON.stringify(payload)
       })
       .then(response => {
-        // if (!response.ok) {
-        //   alert('Incorrect email or password')
-        // }
         return response.json()
       })
       .then(data => {
@@ -84,6 +85,7 @@ export default new Vuex.Store({
           commit('setToken', token)
           localStorage.setItem('token', token)
           this.dispatch('fetchUser')
+          this.dispatch('fetchAdmin')
           router.push('/')
         }
       })
@@ -117,6 +119,20 @@ export default new Vuex.Store({
           commit('setCart')
           commit('setPurchases')
         })
+    },
+    fetchAdmin({state,commit}) {
+      fetch(`${state.baseUrl}/api/admin`, {
+        method: 'GET',
+        headers: {
+          'Authentication-Token': state.token
+        }
+      })
+        .then(response => {
+          return response.json()
+        })
+        .then(data => {
+          commit('setAdmin', data)
+      })
     },
     deleteCart({state}, cart_id) {
       fetch(`${state.baseUrl}/api/cart/${cart_id}`, {
@@ -156,6 +172,26 @@ export default new Vuex.Store({
           this.dispatch('fetchData')
           this.dispatch('fetchUser')
         })
+    },
+    deleteCategory({state},category_id) {
+      if (confirm('Are you sure you want to delete?')) {
+        fetch(`${state.baseUrl}/api/category/${category_id}`, {
+          method: 'DELETE',
+          headers: {
+            'Authentication-Token': state.token
+          }
+        })
+          .then(response => {
+            return response.json()
+          })
+          .then(data => {
+            if (data.message) {
+              state.flashMessage = data.message
+            }
+            this.dispatch('fetchData')
+            this.dispatch('fetchAdmin')
+          })
+      }
     },
   },
   modules: {
