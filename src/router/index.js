@@ -18,7 +18,7 @@ const routes = [
     component: HomeView
   },
   {
-    path: '/login',
+    path: 'BigMarket-Frontend/dist/login',
     name: 'LoginView',
     component: LoginView
   },
