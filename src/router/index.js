@@ -14,15 +14,11 @@ Vue.use(VueRouter)
 const routes = [
   {
     path: '/',
-    redirect: { name: 'HomeView' }
-  },
-  {
-    path: '/BigMarket-Frontend/',
     name: 'HomeView',
     component: HomeView
   },
   {
-    path: '/BigMarket-Frontend/login',
+    path: '/login',
     name: 'LoginView',
     component: LoginView
   },
